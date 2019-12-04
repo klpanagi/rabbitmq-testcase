@@ -1,0 +1,43 @@
+version: "3.2"
+
+services:
+  rabbitmq:
+    build: ./rabbitmq
+    container_name: "rabbitmq"
+    ports:
+      - "15672:15672"
+      - "15674:15674"
+      - "15675:15675"
+      - "5672:5672"
+      - "61613:61613"
+      - "1883:1883"
+    volumes:
+      - type: "volume"
+        source: "rabbitmq-internal"
+        target: "/var/lib/rabbitmq"
+    depends_on:
+      - broker-auth-backend
+    networks:
+      - net_a
+
+  broker-auth-backend:
+    build: ./broker_auth_backend
+    container_name: "broker-auth-backend"
+    networks:
+      - net_a
+
+  webstomp-client:
+    build: ./webstomp_app
+    container_name: "webstomp-client"
+    depends_on:
+      - rabbitmq
+    networks:
+      - net_a
+
+volumes:
+  db-volume:
+  rabbitmq-internal:
+
+networks:
+  net_a:
+    driver: bridge
